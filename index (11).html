@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тест менеджера Appzone · Самара v2.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+:root {
+  --blue: #1a56db;
+  --blue-dark: #1140a6;
+  --blue-light: #ebf0ff;
+  --blue-mid: #c7d7fa;
+  --text: #111827;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --bg: #f3f6ff;
+  --white: #ffffff;
+  --block1: #1a56db;
+  --block2: #0891b2;
+  --block3: #d97706;
+  --block4: #be185d;
+  --block5: #4b5563;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; min-height: 100vh; }
+.wrap { max-width: 660px; margin: 0 auto; padding: 40px 20px 80px; }
+.screen { display: none; }
+.screen.active { display: block; }
+
+.top-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 48px; }
+.top-logo { width: 36px; height: 36px; background: var(--blue); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+.top-brand { font-size: 15px; font-weight: 800; color: var(--blue); }
+
+.eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--blue); margin-bottom: 12px; }
+.intro-title { font-size: clamp(28px, 6vw, 42px); font-weight: 800; line-height: 1.1; color: var(--text); margin-bottom: 6px; }
+.intro-sub { font-size: 14px; color: var(--muted); margin-bottom: 36px; }
+
+.stats-strip { display: flex; border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 28px; background: var(--white); }
+.stat-cell { flex: 1; padding: 14px 10px; text-align: center; border-right: 1.5px solid var(--border); }
+.stat-cell:last-child { border-right: none; }
+.stat-val { font-size: 22px; font-weight: 800; color: var(--blue); line-height: 1; }
+.stat-lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.blocks-grid { display: flex; flex-direction: column; gap: 7px; margin-bottom: 32px; }
+.block-pill { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--white); border: 1.5px solid var(--border); border-radius: 10px; }
+.pill-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.pill-name { font-size: 14px; font-weight: 600; flex: 1; }
+.pill-count { font-size: 12px; color: var(--muted); font-weight: 600; }
+
+.name-wrap { margin-bottom: 24px; }
+.field-label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px; }
+.field-input { width: 100%; padding: 14px 16px; background: var(--white); border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Manrope', sans-serif; font-size: 16px; font-weight: 600; color: var(--text); outline: none; transition: border-color 0.2s; }
+.field-input:focus { border-color: var(--blue); }
+
+.btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 15px 24px; font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; transition: all 0.18s; }
+.btn-primary { background: var(--blue); color: white; }
+.btn-primary:hover { background: var(--blue-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(26,86,219,0.25); }
+.btn-primary:active { transform: translateY(0); box-shadow: none; }
+.btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-outline { background: white; color: var(--blue); border: 1.5px solid var(--blue-mid); }
+.btn-outline:hover { background: var(--blue-light); }
+
+.quiz-top { margin-bottom: 24px; }
+.progress-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.prog-bar { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.prog-fill { height: 100%; background: var(--blue); border-radius: 2px; transition: width 0.35s ease; }
+.prog-label { font-size: 12px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.block-badge { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+.badge-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+.q-card { background: var(--white); border: 1.5px solid var(--border); border-radius: 14px; padding: 28px; margin-bottom: 16px; animation: fadeUp 0.25s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.q-num { font-size: 11px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
+.q-text { font-size: 17px; font-weight: 600; color: var(--text); line-height: 1.5; margin-bottom: 18px; }
+.open-hint { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+.open-ta { width: 100%; min-height: 140px; padding: 14px 16px; background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 500; color: var(--text); resize: vertical; outline: none; transition: border-color 0.2s; line-height: 1.6; }
+.open-ta:focus { border-color: var(--blue); background: white; }
+
+.nav-row { display: flex; gap: 12px; }
+.nav-row .btn { flex: 1; }
+
+.result-header { background: var(--blue); color: white; border-radius: 16px; padding: 36px 28px; text-align: center; margin-bottom: 20px; }
+.result-name { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+.result-meta { font-size: 14px; opacity: 0.8; margin-bottom: 6px; }
+.result-date { font-size: 13px; opacity: 0.65; }
+
+.tg-banner { background: var(--blue-light); border: 1.5px solid var(--blue-mid); border-radius: 12px; padding: 22px 24px; margin-bottom: 20px; text-align: center; }
+.tg-banner p { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.tg-banner a { color: var(--blue); font-weight: 700; font-size: 16px; }
+.tg-banner small { display: block; font-size: 13px; color: var(--muted); margin-top: 8px; }
+
+#pdfTemplate { display: none; font-family: Arial, sans-serif; padding: 30px; color: #111; background: white; }
+.pdf-header { border-bottom: 2px solid #1a56db; padding-bottom: 16px; margin-bottom: 24px; }
+.pdf-title { font-size: 20px; font-weight: 700; color: #1a56db; margin-bottom: 4px; }
+.pdf-meta { font-size: 12px; color: #666; }
+.pdf-block-title { font-size: 13px; font-weight: 700; color: #1a56db; text-transform: uppercase; letter-spacing: 0.08em; margin: 24px 0 10px; padding-bottom: 6px; border-bottom: 1px solid #c7d7fa; }
+.pdf-qa { margin-bottom: 16px; page-break-inside: avoid; }
+.pdf-q { font-size: 13px; font-weight: 700; color: #111; margin-bottom: 6px; line-height: 1.4; }
+.pdf-a { font-size: 13px; font-weight: 400; color: #333; background: none; border: none; padding: 4px 0 0 16px; line-height: 1.6; white-space: pre-wrap; }
+.pdf-a.empty { color: #999; font-style: italic; }
+.pdf-footer { margin-top: 32px; padding-top: 14px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #888; text-align: center; line-height: 1.6; }
+
+@media (max-width: 480px) {
+  .wrap { padding: 24px 16px 60px; }
+  .q-card { padding: 20px; }
+  .q-text { font-size: 15px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <div class="top-bar">
+    <div class="top-logo">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="7" height="7" rx="1.5" fill="white"/>
+        <rect x="11" y="2" width="7" height="7" rx="1.5" fill="white" opacity="0.65"/>
+        <rect x="2" y="11" width="7" height="7" rx="1.5" fill="white" opacity="0.65"/>
+        <rect x="11" y="11" width="7" height="7" rx="1.5" fill="white" opacity="0.35"/>
+      </svg>
+    </div>
+    <div class="top-brand">Appzone</div>
+  </div>
+
+  <div class="eyebrow">Аттестация персонала</div>
+  <div class="intro-title">Тест<br>менеджера</div>
+  <div class="intro-sub">Самара · Версия 2.0 · 2026</div>
+
+  <div class="stats-strip">
+    <div class="stat-cell"><div class="stat-val">31</div><div class="stat-lbl">вопрос</div></div>
+    <div class="stat-cell"><div class="stat-val">5</div><div class="stat-lbl">блоков</div></div>
+    <div class="stat-cell"><div class="stat-val">~25</div><div class="stat-lbl">минут</div></div>
+  </div>
+
+  <div class="blocks-grid">
+    <div class="block-pill"><div class="pill-dot" style="background:var(--block1)"></div><div class="pill-name">Обязанности менеджера</div><div class="pill-count">8 вопр.</div></div>
+    <div class="block-pill"><div class="pill-dot" style="background:var(--block2)"></div><div class="pill-name">Ассортимент и характеристики</div><div class="pill-count">11 вопр.</div></div>
+    <div class="block-pill"><div class="pill-dot" style="background:var(--block3)"></div><div class="pill-name">Техника продаж и возражения</div><div class="pill-count">6 вопр.</div></div>
+    <div class="block-pill"><div class="pill-dot" style="background:var(--block4)"></div><div class="pill-name">Лояльность и конфликты</div><div class="pill-count">3 вопр.</div></div>
+    <div class="block-pill"><div class="pill-dot" style="background:var(--block5)"></div><div class="pill-name">Открытые вопросы</div><div class="pill-count">3 вопр.</div></div>
+  </div>
+
+  <div class="name-wrap">
+    <label class="field-label">Имя и фамилия</label>
+    <input class="field-input" id="nameInput" type="text" placeholder="Иван Иванов" oninput="checkName()">
+  </div>
+
+  <button class="btn btn-primary" id="startBtn" disabled onclick="startTest()">Начать тест →</button>
+</div>
+
+<!-- QUIZ -->
+<div id="s-quiz" class="screen">
+  <div class="quiz-top">
+    <div class="progress-row">
+      <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+      <div class="prog-label" id="progLabel">1 / 31</div>
+    </div>
+    <div class="block-badge">
+      <div class="badge-dot" id="badgeDot"></div>
+      <span id="badgeName"></span>
+    </div>
+  </div>
+
+  <div class="q-card" id="qCard">
+    <div class="q-num" id="qNum"></div>
+    <div class="q-text" id="qText"></div>
+    <div class="open-hint">Развёрнутый ответ своими словами</div>
+    <textarea class="open-ta" id="qAnswer" placeholder="Напишите ваш ответ..."></textarea>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn btn-outline" id="prevBtn" onclick="prevQ()">← Назад</button>
+    <button class="btn btn-primary" id="nextBtn" onclick="nextQ()">Далее →</button>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <div class="result-header">
+    <div class="result-name" id="resName"></div>
+    <div class="result-meta">Тест менеджера Appzone · Самара v2.0</div>
+    <div class="result-date" id="resDate"></div>
+  </div>
+
+  <div class="tg-banner">
+    <p>📋 Тест завершён!</p>
+    <small>Нажми кнопку — откроется Telegram с готовым сообщением. Просто отправь его Глафире.</small>
+  </div>
+
+  <button class="btn btn-primary" id="tgBtn" onclick="sendToTelegram()" style="margin-bottom:12px;">✈️ Отправить Глафире в Telegram</button>
+  <button class="btn btn-outline" onclick="location.reload()">Пройти заново</button>
+</div>
+
+</div>
+
+<!-- HIDDEN PDF -->
+<div id="pdfTemplate">
+  <div class="pdf-header">
+    <div class="pdf-title">Тест менеджера Appzone · Самара v2.0</div>
+    <div class="pdf-meta" id="pdfMeta"></div>
+  </div>
+  <div id="pdfBody"></div>
+  <div class="pdf-footer">
+    Результаты данного теста отправь Глафире в Telegram: https://t.me/aglaygrei
+  </div>
+</div>
+
+<script>
+const questions = [
+  { block:1, text:'После покупки устройства что ты попросишь клиента сделать перед тем как он уйдёт?' },
+  { block:1, text:'Пришла поставка техники. Что нужно сделать при приёмке?' },
+  { block:1, text:'Клиент пришёл и хочет конкретное устройство, но его нет в наличии. Что ты будешь делать и какую формулировку используешь?' },
+  { block:1, text:'В конце смены при пересчёте кассы обнаружилась недостача 500 рублей. Твои действия?' },
+  { block:1, text:'Аксессуаров на витрине почти не осталось — один чехол и два стекла. Что делать?' },
+  { block:1, text:'Клиент пришёл с вопросом по телефону который купил 2 недели назад — не понимает как настроить iCloud. Твои действия?' },
+  { block:1, text:'Клиент хочет оформить рассрочку но не понимает условий. Как правильно объяснить?' },
+  { block:1, text:'Идёт инвентаризация. Управляющий просит пересчитать аксессуары. Как правильно подойти к задаче?' },
+  { block:2, text:'Клиент спрашивает: "У вас есть Xiaomi 15 Ultra?" Что ответишь?' },
+  { block:2, text:'Клиент: "Мне нужен пылесос Dyson с влажной уборкой". Что предложишь?' },
+  { block:2, text:'Клиент хочет MacBook для написания музыки — спрашивает Air или Pro. Что порекомендуешь?' },
+  { block:2, text:'Клиент: "Не хочу eSIM — я часто езжу за границу, боюсь что не будет работать". Как ответишь?' },
+  { block:2, text:'Клиент хочет бюджетный iPhone просто для звонков и мессенджеров. Что предложишь?' },
+  { block:2, text:'Клиент не понимает почему за наличку и в рассрочку стоимость разная. Как объяснишь?' },
+  { block:2, text:'Клиент спрашивает про расширенную гарантию: "Сколько она стоит?" Как объяснишь?' },
+  { block:2, text:'Клиент: "Что входит в пакет Ультра?" Что ответишь?' },
+  { block:2, text:'Клиент спрашивает: "Чем MacBook Air M4 отличается от Pro M4?" Объясни ключевое отличие.' },
+  { block:2, text:'Клиент смотрит на б/у iPhone 15 и новый iPhone 16e. Как объяснишь разницу честно?' },
+  { block:2, text:'Клиент спрашивает про новый MacBook на M5. Что ответишь?' },
+  { block:3, text:'Клиент говорит: "Мне надо подумать". Что ответишь?' },
+  { block:3, text:'Клиент: "У iStudio дешевле". Как ответишь?' },
+  { block:3, text:'Клиент долго выбирает между iPhone 16 и 17, никак не может решить. Твоя тактика?' },
+  { block:3, text:'Клиент говорит: "Не нужна расширенная гарантия — я аккуратный". Как ответишь?' },
+  { block:3, text:'Клиент купил телефон. Как предложить пакет Ультра чтобы не звучало навязчиво?' },
+  { block:3, text:'Клиент пришёл "просто посмотреть". Как подойдёшь и что скажешь?' },
+  { block:4, text:'Клиент агрессивно говорит при других покупателях: "Вы мне продали брак!" (телефон работает нормально). Твои действия?' },
+  { block:4, text:'Клиент звонит через 3 дня после покупки: телефон не заряжается. Что делаешь?' },
+  { block:4, text:'Клиент хочет вернуть iPhone на 10-й день без каких-либо поломок — просто "не понравился". Твои действия?' },
+  { block:5, text:'Клиент перед тобой: хочет iPhone 17 Pro Max, бюджет ограничен — говорит что у него только 80 000 наличными, а телефон стоит 115 000 руб. Как закрываешь эту сделку? Опиши конкретно что скажешь.' },
+  { block:5, text:'Опиши своими словами почему клиенту стоит купить расширенную гарантию на iPhone стоимостью 90 000 руб. Посчитай сколько она будет стоить и что именно покрывает.' },
+  { block:5, text:'Клиент говорит: "Я слышал что в Appzone дороже чем везде". Что ответишь? Говори как будто клиент стоит перед тобой прямо сейчас.' },
+];
+
+const blockMeta = {
+  1: { name:'Обязанности менеджера', color:'#1a56db' },
+  2: { name:'Ассортимент и характеристики', color:'#0891b2' },
+  3: { name:'Техника продаж и возражения', color:'#d97706' },
+  4: { name:'Лояльность и конфликты', color:'#be185d' },
+  5: { name:'Открытые вопросы', color:'#4b5563' },
+};
+
+const blockLabels = {
+  1:'Блок 1 — Обязанности менеджера',
+  2:'Блок 2 — Ассортимент и характеристики',
+  3:'Блок 3 — Техника продаж и возражения',
+  4:'Блок 4 — Лояльность и конфликты',
+  5:'Блок 5 — Открытые вопросы',
+};
+
+let cur = 0;
+let answers = new Array(questions.length).fill('');
+let userName = '';
+
+function checkName() {
+  document.getElementById('startBtn').disabled =
+    document.getElementById('nameInput').value.trim().length < 2;
+}
+
+function startTest() {
+  userName = document.getElementById('nameInput').value.trim();
+  showScreen('s-quiz');
+  renderQ();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function renderQ() {
+  const q = questions[cur];
+  const m = blockMeta[q.block];
+
+  document.getElementById('progFill').style.width = (cur / questions.length * 100) + '%';
+  document.getElementById('progLabel').textContent = (cur + 1) + ' / ' + questions.length;
+  document.getElementById('badgeDot').style.background = m.color;
+  document.getElementById('badgeName').textContent = 'Блок ' + q.block + ' — ' + m.name;
+  document.getElementById('qNum').textContent = 'Вопрос ' + (cur + 1);
+  document.getElementById('qText').textContent = q.text;
+
+  const ta = document.getElementById('qAnswer');
+  ta.value = answers[cur];
+  ta.oninput = () => { answers[cur] = ta.value; };
+
+  const card = document.getElementById('qCard');
+  card.style.animation = 'none'; card.offsetHeight; card.style.animation = '';
+
+  document.getElementById('prevBtn').style.visibility = cur === 0 ? 'hidden' : 'visible';
+  document.getElementById('nextBtn').textContent = cur === questions.length - 1 ? 'Завершить ✓' : 'Далее →';
+}
+
+function nextQ() {
+  answers[cur] = document.getElementById('qAnswer').value;
+  if (cur < questions.length - 1) { cur++; renderQ(); }
+  else finishTest();
+}
+
+function prevQ() {
+  answers[cur] = document.getElementById('qAnswer').value;
+  if (cur > 0) { cur--; renderQ(); }
+}
+
+function finishTest() {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('ru-RU', { day:'numeric', month:'long', year:'numeric' });
+  document.getElementById('resName').textContent = userName;
+  document.getElementById('resDate').textContent = dateStr;
+  buildPDF(dateStr);
+  sendToSheets(dateStr);
+  showScreen('s-result');
+}
+
+function sendToSheets(dateStr) {
+  var result = '';
+  for (var b = 1; b <= 5; b++) {
+    result += blockLabels[b] + '\n\n';
+    for (var i = 0; i < questions.length; i++) {
+      if (questions[i].block === b) {
+        var ans = answers[i] ? answers[i] : 'net otveta';
+        result += (i+1) + '. ' + questions[i].text + '\n' + ans + '\n\n';
+      }
+    }
+    result += '---\n\n';
+  }
+  var base = 'https://script.google.com/macros/s/AKfycby4mRbol92WTctt-OuCrUSqUMXdcc6Kb7625fBiptkZ-zUQEZ6KIMqwyWNVTWbchEwZ/exec';
+  var url = base + '?name=' + encodeURIComponent(userName) + '&date=' + encodeURIComponent(dateStr) + '&answers=' + encodeURIComponent(result);
+  var img = new Image();
+  img.src = url;
+}
+
+function sendToTelegram() {
+  var msg = 'Тест Appzone — ' + userName + '\n\n';
+  for (var b = 1; b <= 5; b++) {
+    msg += blockLabels[b] + '\n\n';
+    for (var i = 0; i < questions.length; i++) {
+      if (questions[i].block === b) {
+        var ans = answers[i] ? answers[i] : 'Ответ не дан';
+        msg += '*' + (i+1) + '. ' + questions[i].text + '*' + '\n' + ans + '\n\n';
+      }
+    }
+    msg += '---\n\n';
+  }
+  var url = 'https://t.me/aglaygrei?text=' + encodeURIComponent(msg);
+  window.open(url, '_blank');
+}
+
+function buildPDF(dateStr) {
+  document.getElementById('pdfMeta').textContent = userName + ' · Самара · ' + dateStr;
+  const body = document.getElementById('pdfBody');
+  body.innerHTML = '';
+  let lastBlock = 0;
+  questions.forEach((q, i) => {
+    if (q.block !== lastBlock) {
+      lastBlock = q.block;
+      const bt = document.createElement('div');
+      bt.className = 'pdf-block-title';
+      bt.textContent = blockLabels[q.block];
+      body.appendChild(bt);
+    }
+    const div = document.createElement('div');
+    div.className = 'pdf-qa';
+    const ans = answers[i] || '— Ответ не дан —';
+    const empty = !answers[i];
+    div.innerHTML = `<div class="pdf-q">${i+1}. ${q.text}</div><div class="pdf-a${empty?' empty':''}">${ans}</div>`;
+    body.appendChild(div);
+  });
+}
+
+function downloadPDF() {
+  const el = document.getElementById('pdfTemplate');
+  el.style.display = 'block';
+  const opt = {
+    margin: [12,12,16,12],
+    filename: 'appzone_test_' + userName.replace(/\s+/g,'_') + '.pdf',
+    image: { type:'jpeg', quality:0.97 },
+    html2canvas: { scale:2, useCORS:true },
+    jsPDF: { unit:'mm', format:'a4', orientation:'portrait' },
+    pagebreak: { mode:['avoid-all','css'] }
+  };
+  html2pdf().set(opt).from(el).save().then(() => { el.style.display = 'none'; });
+}
+</script>
+</body>
+</html>
