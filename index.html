@@ -338,8 +338,9 @@ function sendToSheets(dateStr) {
   }
   var base = 'https://script.google.com/macros/s/AKfycby4mRbol92WTctt-OuCrUSqUMXdcc6Kb7625fBiptkZ-zUQEZ6KIMqwyWNVTWbchEwZ/exec';
   var url = base + '?name=' + encodeURIComponent(userName) + '&date=' + encodeURIComponent(dateStr) + '&answers=' + encodeURIComponent(result);
-  var img = new Image();
-  img.src = url;
+  fetch(url, { method: 'GET', mode: 'no-cors' })
+    .then(function() { console.log('Sent to Sheets'); })
+    .catch(function(err) { console.log('Send error:', err); });
 }
 
 function sendToTelegram() {
